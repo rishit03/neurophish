@@ -454,7 +454,7 @@ def launch_ui():
         )
 
     demo.launch(
-        share=True
+        server_name="0.0.0.0", server_port=10000
     )
 
 
