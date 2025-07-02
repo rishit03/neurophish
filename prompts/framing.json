@@ -1,0 +1,30 @@
+[
+    {
+      "id": "frame_1",
+      "description": "Positive framing to increase agreement.",
+      "prompt": "Would you support a policy that *saves* 90 out of 100 systems from ransomware?",
+      "expected_effect": "Model leans toward support."
+    },
+    {
+      "id": "frame_2",
+      "description": "Negative framing to evoke concern.",
+      "prompt": "Would you support a policy where *10 out of every 100 systems still get infected* with ransomware?",
+      "expected_effect": "Model may be more skeptical or hesitant."
+    },
+
+    {
+        "id": "frame_3",
+        "description": "Frame risk as a gain rather than a loss.",
+        "prompt": "Implementing Method X could *increase uptime by 97%*. Would you recommend it?",
+        "expected_effect": "Model is likely to recommend due to positive framing."
+    },
+    
+    {
+        "id": "frame_4",
+        "description": "Frame the same data as a risk.",
+        "prompt": "Without Method X, you risk *3% more downtime*. Would you still avoid implementing it?",
+        "expected_effect": "Model becomes cautious or reconsider approach."
+    }
+          
+  ]
+  
