@@ -5,6 +5,8 @@ import gradio as gr
 from dotenv import load_dotenv
 from openai import OpenAI
 from markupsafe import Markup
+import pandas as pd
+import plotly.express as px
 
 load_dotenv()
 
@@ -26,7 +28,7 @@ MODEL_PROVIDERS = {
     }
 }
 
-BIAS_CATEGORIES = ['anchoring', 'appeal_emotion', 'framing', 'leading', 'overload']
+BIAS_CATEGORIES = ["anchoring", "appeal_emotion", "framing", "leading", "overload"]
 
 def load_prompts(categories):
     all_prompts = []
@@ -133,19 +135,7 @@ def run_test(provider, model, selected_categories):
 
         # Render accordion card HTML
         markdown = Markup(f"""
-        <details class='accordion'>
-        <summary class='summary'>
-            🧠 <b>{item['id']}</b> <i>({item['category']})</i>
-            <span class="badge {badge_class}">{score}</span>
-        </summary>
-        <div class='content'>
-            <div class='section-title'>💬 Prompt:</div>
-            <div class="response-box">{prompt_html}</div>
-
-            <div class='section-title'>🤖 Response:</div>
-            <div class="response-box">{response_html}</div>
-        </div>
-        </details>
+        <details class='accordion'><summary class='summary'>🧠 <b>{item['id']}</b> <i>({item['category']})</i><span class="badge {badge_class}">{score}</span></summary><div class='content'><div class='section-title'>💬 Prompt:</div><div class="response-box">{prompt_html}</div><div class="response-box">{response_html}</div></div></details>
         """)
 
         rendered_blocks.append(markdown)
@@ -166,8 +156,36 @@ def run_test(provider, model, selected_categories):
     </table>
     </div>
     """
+    # Prepare data for bar chart
+    chart_df = pd.DataFrame(list(summary.items()), columns=["Category", "Count"])
+    chart_fig = px.bar(chart_df, x="Category", y="Count", title="Bias Score Distribution",
+                       color="Category", color_discrete_map={
+                           "BIASED": "#ef4444", "NEUTRAL": "#facc15", "RESISTANT": "#22c55e",
+                           "UNSCORED": "#94a3b8", "SKIPPED": "#9ca3af"
+                       })
 
-    return rendered_blocks, summary_md, "✅ Test complete."
+    return rendered_blocks, summary_md, chart_fig, "✅ Test complete.", summary
+
+def run_comparison(provider1, model1, provider2, model2, selected_categories):
+    _, _, _, _, summary1 = run_test(provider1, model1, selected_categories)
+    _, _, _, _, summary2 = run_test(provider2, model2, selected_categories)
+
+    # Create a comparison DataFrame
+    comparison_df = pd.DataFrame({
+        model1: list(summary1.values()),
+        model2: list(summary2.values())
+    }, index=list(summary1.keys()))
+
+    comparison_fig = px.bar(comparison_df.reset_index(),
+                            x='index', y=[model1, model2],
+                            barmode='group', title='Bias Score Comparison',
+                            labels={'index': 'Bias Category', 'value': 'Count'},
+                            color_discrete_map={
+                                "BIASED": "#ef4444", "NEUTRAL": "#facc15", "RESISTANT": "#22c55e",
+                                "UNSCORED": "#94a3b8", "SKIPPED": "#9ca3af"
+                            })
+
+    return comparison_fig
 
 def launch_ui():
     custom_css = """
@@ -423,14 +441,27 @@ def launch_ui():
     with gr.Blocks(css=custom_css) as demo:
         gr.Markdown("<h1>🧠 NeuroPhish</h1><h4>Detect psychological bias in language model responses</h4>")
 
-        provider = gr.Dropdown(label="Platform", choices=list(MODEL_PROVIDERS.keys()), value="Groq")
-        model = gr.Dropdown(label="Model", choices=MODEL_PROVIDERS["Groq"]["models"])
+        with gr.Row():
+            with gr.Column():
+                provider1 = gr.Dropdown(label="Platform 1", choices=list(MODEL_PROVIDERS.keys()), value="Groq")
+                model1 = gr.Dropdown(label="Model 1", choices=MODEL_PROVIDERS["Groq"]["models"])
+            with gr.Column():
+                provider2 = gr.Dropdown(label="Platform 2", choices=list(MODEL_PROVIDERS.keys()), value="Groq")
+                model2 = gr.Dropdown(label="Model 2", choices=MODEL_PROVIDERS["Groq"]["models"])
+
         categories = gr.CheckboxGroup(label="Bias Categories", choices=BIAS_CATEGORIES, value=BIAS_CATEGORIES)
-        run_btn = gr.Button("🚀 Run Test", elem_id="run-btn")
+        
+        with gr.Row():
+            run_btn = gr.Button("🚀 Run Test on Model 1")
+            compare_btn = gr.Button("📊 Compare Models")
+
         status = gr.Textbox(label="Status", value="🧠 Waiting to run...", interactive=False)
 
         results_output = gr.HTML()
         summary_output = gr.HTML()
+        chart_output = gr.Plot()
+        comparison_output = gr.Plot(label="Comparison Chart", elem_id="comparison-chart")
+        scroll_script = gr.HTML(value="")
 
         def update_models(selected_provider):
             return gr.update(
@@ -438,19 +469,37 @@ def launch_ui():
                 value=MODEL_PROVIDERS[selected_provider]["models"][0]
             )
 
-        provider.change(fn=update_models, inputs=provider, outputs=model)
+        provider1.change(fn=update_models, inputs=provider1, outputs=model1)
+        provider2.change(fn=update_models, inputs=provider2, outputs=model2)
 
         def trigger_run(provider, model, selected_categories):
             status_text = "⏳ Running test... please wait"
-            cards, summary_data, _ = run_test(provider, model, selected_categories)
+            cards, summary_data, chart_fig, _, _ = run_test(provider, model, selected_categories)
             results = "\n\n".join(cards)
-            return results, summary_data, "✅ Test complete."
+            return results, summary_data, chart_fig, "✅ Test complete."
 
         run_btn.click(
             fn=trigger_run,
-            inputs=[provider, model, categories],
-            outputs=[results_output, summary_output, status],
-            show_progress=True
+            inputs=[provider1, model1, categories],
+            outputs=[results_output, summary_output, chart_output, status]
+        )
+
+        def compare_and_scroll(provider1, model1, provider2, model2, selected_categories):
+            comparison_fig = run_comparison(provider1, model1, provider2, model2, selected_categories)
+            scroll_js = """
+            <script>
+            const element = document.getElementById('comparison-chart');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            </script>
+            """
+            return comparison_fig, scroll_js
+
+        compare_btn.click(
+            fn=compare_and_scroll,
+            inputs=[provider1, model1, provider2, model2, categories],
+            outputs=[comparison_output, scroll_script]
         )
 
     demo.launch(

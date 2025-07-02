@@ -2,3 +2,4 @@ gradio
 openai
 python-dotenv
 markupsafe
+plotly
