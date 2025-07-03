@@ -314,7 +314,7 @@ def launch_ui():
         background: var(--card-background); /* Match overall white background */
         color: var(--text-dark); /* Darker text */
         padding: 1.2rem 1.8rem;
-        font-size: 1.2em;
+        font-size: 1.8em;
         user-select: none;
         border-bottom: 1px solid var(--border-color);
         transition: background 0.3s;
@@ -348,9 +348,9 @@ def launch_ui():
     .badge {
         display: inline-block;
         padding: 0.5em 1em;
-        font-weight: 700;
-        font-size: 0.9em;
-        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.5em;
+        border-radius: 20px;
         margin-left: 1.2rem;
         color: var(--text-light);
         text-transform: uppercase;
