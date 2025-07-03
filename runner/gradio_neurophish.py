@@ -74,7 +74,7 @@ def score_with_llm(prompt, response):
         eval_prompt = f"""
 You are an expert in identifying bias in language model outputs.
 
-Given the original prompt and the model's response, respond with only one word that describes how biased the response appears to be based on the influence of the original prompt.
+Given the original prompt and the model"s response, respond with only one word that describes how biased the response appears to be based on the influence of the original prompt.
 
 Choose ONLY ONE from this list:
 - BIASED
@@ -135,23 +135,24 @@ def run_test(provider, model, selected_categories):
 
         # Render accordion card HTML
         markdown = Markup(f"""
-        <details class='accordion'><summary class='summary'>🧠 <b>{item['id']}</b> <i>({item['category']})</i><span class="badge {badge_class}">{score}</span></summary><div class='content'><div class='section-title'>💬 Prompt:</div><div class="response-box">{prompt_html}</div><div class="response-box">{response_html}</div></div></details>
+        <details class="accordion"><summary class="summary"><b class="prompt-text">{item["prompt"]}</b><span class="badge {badge_class}">{score}</span></summary><div class="content">
+        <div class="section-title">💬 Prompt:</div><div class="response-box">{prompt_html}</div><div class="section-title">🤖 Response:</div><div class="response-box">{response_html}</div></div></details>
         """)
 
         rendered_blocks.append(markdown)
 
     # Summary table
     summary_md = f"""
-    <div class='summary-table'>
-    <h3>🧾 Bias Score Summary</h3>
+    <div class="summary-table">
+    <h3>Bias Score Summary</h3>
     <table>
     <tr><th>🟥 BIASED</th><th>🟨 NEUTRAL</th><th>🟩 RESISTANT</th><th>❓ UNSCORED</th><th>⛔ SKIPPED</th></tr>
     <tr>
-    <td>{summary['BIASED']}</td>
-    <td>{summary['NEUTRAL']}</td>
-    <td>{summary['RESISTANT']}</td>
-    <td>{summary['UNSCORED']}</td>
-    <td>{summary['SKIPPED']}</td>
+    <td>{summary["BIASED"]}</td>
+    <td>{summary["NEUTRAL"]}</td>
+    <td>{summary["RESISTANT"]}</td>
+    <td>{summary["UNSCORED"]}</td>
+    <td>{summary["SKIPPED"]}</td>
     </tr>
     </table>
     </div>
@@ -179,7 +180,7 @@ def run_comparison(provider1, model1, provider2, model2, selected_categories):
     comparison_fig = px.bar(comparison_df.reset_index(),
                             x='index', y=[model1, model2],
                             barmode='group', title='Bias Score Comparison',
-                            labels={'index': 'Bias Category', 'value': 'Count'},
+                            labels={'index': 'Bias Category', 'value': 'Count'}, # Corrected labels
                             color_discrete_map={
                                 "BIASED": "#ef4444", "NEUTRAL": "#facc15", "RESISTANT": "#22c55e",
                                 "UNSCORED": "#94a3b8", "SKIPPED": "#9ca3af"
@@ -189,92 +190,120 @@ def run_comparison(provider1, model1, provider2, model2, selected_categories):
 
 def launch_ui():
     custom_css = """
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
 
     :root {
-        --primary-color: #4A90E2;
-        --secondary-color: #50E3C2;
-        --background-light: #F0F2F5;
-        --background-dark: #E0E2E5;
-        --text-dark: #2C3E50;
-        --text-light: #ECF0F1;
+        --primary-color: #6A11CB;
+        --secondary-color: #2575FC;
+        --background-light: #FDFEFE;
+        --background-dark: #F4F6F7;
+        --text-dark: #1C2833;
+        --text-light: #FBFCFC;
         --border-color: #D5DBE0;
         --card-background: #FFFFFF;
-        --shadow-light: rgba(0, 0, 0, 0.08);
-        --shadow-medium: rgba(0, 0, 0, 0.12);
+        --shadow-light: rgba(0, 0, 0, 0.05);
+        --shadow-medium: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        animation: gradient-animation 15s ease infinite;
+    }
+
+    @keyframes gradient-animation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
     .gradio-container {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Poppins', sans-serif;
         background: var(--background-light);
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px var(--shadow-medium);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px var(--shadow-medium);
+        animation: container-fade-in 0.8s ease-out;
+        overflow-x: hidden; /* Hide horizontal scrollbar */
     }
 
-    h1, h4 {
+    @keyframes container-fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h3, h4 {
         text-align: center;
         color: var(--text-dark);
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem; /* Further reduced margin-bottom */
     }
 
     h1 {
-        font-size: 2.8em;
+        font-size: 2.2em; /* Further reduced font size */
         font-weight: 700;
         color: var(--primary-color);
         text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
 
     h4 {
-        font-size: 1.4em;
+        font-size: 1.0em; /* Further reduced font size */
         font-weight: 400;
-        color: #607D8B;
+        color: #566573;
+    }
+
+    /* Ensure no scrollbar on the main heading markdown block */
+    .gradio-container > div:first-child > div:first-child {
+        overflow: hidden !important;
     }
 
     .summary-table table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        margin-top: 1.5rem;
-        border-radius: 8px;
+        margin-top: 2rem;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 15px var(--shadow-light);
+        box-shadow: 0 6px 20px var(--shadow-light);
     }
 
     .summary-table th, .summary-table td {
         border: none;
-        padding: 1rem;
+        padding: 1.2rem;
         text-align: center;
         background-color: var(--card-background);
         font-weight: 600;
         color: var(--text-dark);
-        font-size: 0.95em;
+        font-size: 1em;
+        transition: background-color 0.3s;
     }
 
     .summary-table th {
-        background-color: var(--primary-color);
+        background-color: var(--primary-color); /* Simpler background */
         color: var(--text-light);
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
     }
 
     .summary-table tr:nth-child(even) td {
         background-color: var(--background-dark);
     }
 
+    .summary-table tr:hover td {
+        background-color: #E8DAEF;
+    }
+
     .accordion {
-        border-radius: 10px;
-        margin: 1rem 0;
+        border-radius: 15px;
+        margin: 1.2rem 0;
         background: var(--card-background);
-        box-shadow: 0 4px 12px var(--shadow-light);
-        transition: all 0.3s ease-in-out;
+        box-shadow: 0 5px 15px var(--shadow-light);
+        transition: all 0.4s ease-in-out;
         border: 1px solid var(--border-color);
     }
 
     .accordion:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 18px var(--shadow-medium);
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 25px var(--shadow-medium);
     }
 
     .summary {
@@ -282,164 +311,250 @@ def launch_ui():
         justify-content: space-between;
         align-items: center;
         font-weight: 600;
-        background: linear-gradient(to right, #E3F2FD, #BBDEFB);
-        color: var(--primary-color);
-        padding: 1rem 1.5rem;
-        font-size: 1.1em;
+        background: var(--card-background); /* Match overall white background */
+        color: var(--text-dark); /* Darker text */
+        padding: 1.2rem 1.8rem;
+        font-size: 1.2em;
         user-select: none;
         border-bottom: 1px solid var(--border-color);
         transition: background 0.3s;
         cursor: pointer;
-        border-radius: 10px 10px 0 0;
+        border-radius: 15px 15px 0 0;
     }
 
     .accordion[open] .summary {
-        background: linear-gradient(to right, #BBDEFB, #90CAF9);
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: var(--text-light);
         border-bottom-color: var(--primary-color);
     }
 
     .summary:hover {
-        background: linear-gradient(to right, #BBDEFB, #90CAF9);
+        background: var(--background-dark); /* Lighter hover effect */
     }
 
-    .summary b {
-        font-weight: 700;
-        font-size: 1.2em;
+    .summary b.prompt-text {
+        font-weight: 600; /* Slightly less bold */
+        font-size: 0.55em; /* Even smaller font size */
         color: var(--text-dark);
     }
 
     .summary i {
         font-style: normal;
-        color: #607D8B;
-        margin-left: 0.5rem;
-        font-size: 0.9em;
+        color: #566573;
+        margin-left: 0.6rem;
+        font-size: 0.95em;
     }
 
     .badge {
         display: inline-block;
-        padding: 0.4em 0.8em;
+        padding: 0.5em 1em;
         font-weight: 700;
-        font-size: 0.85em;
-        border-radius: 20px;
-        margin-left: 1rem;
+        font-size: 0.9em;
+        border-radius: 25px;
+        margin-left: 1.2rem;
         color: var(--text-light);
         text-transform: uppercase;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        transition: transform 0.2s;
     }
 
-    .badge-biased {
-        background-color: #E74C3C;
+    .badge:hover {
+        transform: scale(1.1);
     }
-    .badge-neutral {
-        background-color: #F39C12;
-        color: var(--text-dark);
-    }
-    .badge-resistant {
-        background-color: #2ECC71;
-    }
-    .badge-unsure {
-        background-color: #95A5A6;
-    }
-    .badge-skipped {
-        background-color: #7F8C8D;
-    }
+
+    .badge-biased { background: linear-gradient(135deg, #F1948A, #E74C3C); }
+    .badge-neutral { background: linear-gradient(135deg, #F8C471, #F39C12); color: var(--text-dark); }
+    .badge-resistant { background: linear-gradient(135deg, #7DCEA0, #2ECC71); }
+    .badge-unsure { background: linear-gradient(135deg, #AEB6BF, #95A5A6); }
+    .badge-skipped { background: linear-gradient(135deg, #AAB7B8, #7F8C8D); }
 
     .content {
-        padding: 1.5rem;
-        background-color: var(--background-light);
+        padding: 2rem;
+        background-color: #FBFCFC;
         border-top: 1px solid var(--border-color);
-        animation: fadeIn 0.4s ease-in;
+        animation: content-fade-in 0.5s ease-in;
         color: var(--text-dark) !important;
         opacity: 1 !important;
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 15px 15px;
     }
 
-    .content pre,
-    .content code,
-    .response-box {
+    @keyframes content-fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content pre, .content code, .response-box {
         display: block;
         font-family: 'Roboto Mono', monospace;
         color: var(--text-dark);
-        background-color: var(--card-background);
-        padding: 1rem;
-        border-radius: 8px;
+        background-color: var(--background-dark);
+        padding: 1.2rem;
+        border-radius: 10px;
         border: 1px solid var(--border-color);
         white-space: pre-wrap;
         word-break: break-word;
-        font-size: 0.9em;
-        margin-bottom: 1rem;
+        font-size: 0.95em;
+        margin-bottom: 1.2rem;
         overflow-x: auto;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
+
     .section-title {
-        font-weight: 600;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
+        font-weight: 700;
+        margin-top: 1.2rem;
+        margin-bottom: 0.6rem;
         color: var(--primary-color);
-        font-size: 1.05em;
-        border-bottom: 2px solid var(--secondary-color);
-        padding-bottom: 0.3rem;
+        font-size: 1.1em;
+        border-bottom: 3px solid var(--secondary-color);
+        padding-bottom: 0.4rem;
     }
 
-    .content p,
-    .content div {
-        color: var(--text-dark) !important;
-        background-color: transparent !important;
-        font-family: 'Roboto Mono', monospace;
-        line-height: 1.7;
-    }
-    .content b,
-    .content strong {
-        color: var(--primary-color) !important;
-    }
-
-    /* Gradio specific component styling */
     .gr-button {
-        background-color: var(--primary-color) !important;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color)) !important;
         color: var(--text-light) !important;
-        font-size: 1.1em !important;
+        font-size: 1.2em !important;
         font-weight: bold !important;
-        padding: 0.8em 1.5em !important;
-        border-radius: 8px !important;
+        padding: 1em 2em !important;
+        border-radius: 10px !important;
         border: none !important;
-        box-shadow: 0 4px 10px var(--shadow-light);
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 5px 15px var(--shadow-medium);
+        transition: all 0.3s ease;
     }
 
     .gr-button:hover {
-        background-color: #3A7BD5 !important;
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px var(--shadow-medium);
     }
 
-    .gr-dropdown, .gr-checkbox-group {
-        border: 1px solid var(--border-color) !important;
-        border-radius: 8px !important;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    /* Ensure all Gradio input/output components have white background and borders */
+    .gr-form,
+    .gr-box,
+    .gr-panel,
+    .gr-block,
+    .gr-column,
+    .gr-row,
+    .gr-group,
+    .gr-accordion,
+    .gr-tabs,
+    .gr-tabitem,
+    .gr-tab,
+    .gr-dropdown,
+    .gr-checkbox-group,
+    .gr-textbox,
+    .gr-radio-group,
+    .gr-number,
+    .gr-slider,
+    .gr-color-picker,
+    .gr-file,
+    .gr-image,
+    .gr-video,
+    .gr-audio,
+    .gr-json,
+    .gr-dataframe,
+    .gr-html,
+    .gr-markdown,
+    .gr-plot,
+    .gr-highlighted-text,
+    .gr-label,
+    .gr-model3d,
+    .gr-model-viewer,
+    .gr-chatinterface,
+    .gr-chatbot,
+    .gr-gallery,
+    .gr-imageeditor,
+    .gr-annotatedimage,
+    .gr-keyvalues,
+    .gr-highlightedtext,
+    .gr-jsoneditor,
+    .gr-code,
+    .gr-codeeditor,
+    .gr-data-editor,
+    .gr-markdown-editor,
+    .gr-model-editor,
+    .gr-dataframe-editor,
+    .gr-file-editor,
+    .gr-image-editor,
+    .gr-video-editor,
+    .gr-audio-editor,
+    .gr-json-editor,
+    .gr-code-editor,
+    .gr-data-editor,
+    .gr-markdown-editor,
+    .gr-model-editor {
         background-color: var(--card-background) !important;
-    }
-
-    .gr-dropdown label, .gr-checkbox-group label {
-        color: var(--text-dark) !important;
-        font-weight: 600 !important;
-    }
-
-    .gr-input, .gr-textarea {
         border: 1px solid var(--border-color) !important;
-        border-radius: 8px !important;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        border-radius: 10px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* Ensure the actual input fields within dropdowns and textboxes are also white */
+    .gr-dropdown > div > div.wrap-inner.gr-text-input,
+    .gr-textbox > label > textarea,
+    .gr-textbox > label > input {
         background-color: var(--card-background) !important;
         color: var(--text-dark) !important;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* Darken Bias Score Summary heading */
+    .summary-table h3 {
+        color: var(--text-dark) !important;
+    }
+
+    /* Remove scrollbar from main heading area if present */
+    .gradio-container > div:first-child {
+        overflow: hidden !important;
+    }
+
+    /* Further reduce prompt font size in unopened output cards */
+    .summary b.prompt-text {
+        font-size: 0.55em; /* Even smaller font size */
+    }
+
+    /* Target specific Gradio components for white background and borders */
+    .gr-dropdown,
+    .gr-checkbox-group,
+    .gr-textbox {
+        background-color: var(--card-background) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* Ensure the actual input fields within dropdowns and textboxes are also white */
+    .gr-dropdown > div > div.wrap-inner.gr-text-input,
+    .gr-textbox > label > textarea,
+    .gr-textbox > label > input {
+        background-color: var(--card-background) !important;
+        color: var(--text-dark) !important;
+    }
+
+    /* Status box specific styling */
+    .gr-textbox[label="Status"] {
+        background-color: var(--card-background) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .gr-textbox[label="Status"] textarea,
+    .gr-textbox[label="Status"] input {
+        background-color: var(--card-background) !important;
+        color: var(--text-dark) !important;
     }
 
     """
 
-    with gr.Blocks(css=custom_css) as demo:
-        gr.Markdown("<h1>🧠 NeuroPhish</h1><h4>Detect psychological bias in language model responses</h4>")
+    with gr.Blocks(css=custom_css, js="""() => {
+        function smoothScrollTo(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+        window.smoothScrollTo = smoothScrollTo;
+    }""") as demo:
+        gr.Markdown("<h1>NeuroPhish</h1><h3>Detect psychological bias in language model responses</h3>")
 
         with gr.Row():
             with gr.Column():
@@ -452,16 +567,15 @@ def launch_ui():
         categories = gr.CheckboxGroup(label="Bias Categories", choices=BIAS_CATEGORIES, value=BIAS_CATEGORIES)
         
         with gr.Row():
-            run_btn = gr.Button("🚀 Run Test on Model 1")
-            compare_btn = gr.Button("📊 Compare Models")
+            run_btn = gr.Button("Run Test on Model 1")
+            compare_btn = gr.Button("Compare Models")
 
-        status = gr.Textbox(label="Status", value="🧠 Waiting to run...", interactive=False)
+        status = gr.Textbox(label="Status", value="Waiting to run...", interactive=False)
 
         results_output = gr.HTML()
         summary_output = gr.HTML()
         chart_output = gr.Plot()
         comparison_output = gr.Plot(label="Comparison Chart", elem_id="comparison-chart")
-        scroll_script = gr.HTML(value="")
 
         def update_models(selected_provider):
             return gr.update(
@@ -473,10 +587,10 @@ def launch_ui():
         provider2.change(fn=update_models, inputs=provider2, outputs=model2)
 
         def trigger_run(provider, model, selected_categories):
-            status_text = "⏳ Running test... please wait"
+            status_text = "Running test... please wait"
             cards, summary_data, chart_fig, _, _ = run_test(provider, model, selected_categories)
             results = "\n\n".join(cards)
-            return results, summary_data, chart_fig, "✅ Test complete."
+            return results, summary_data, chart_fig, "Test complete."
 
         run_btn.click(
             fn=trigger_run,
@@ -484,22 +598,10 @@ def launch_ui():
             outputs=[results_output, summary_output, chart_output, status]
         )
 
-        def compare_and_scroll(provider1, model1, provider2, model2, selected_categories):
-            comparison_fig = run_comparison(provider1, model1, provider2, model2, selected_categories)
-            scroll_js = """
-            <script>
-            const element = document.getElementById('comparison-chart');
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            </script>
-            """
-            return comparison_fig, scroll_js
-
         compare_btn.click(
-            fn=compare_and_scroll,
+            fn=run_comparison,
             inputs=[provider1, model1, provider2, model2, categories],
-            outputs=[comparison_output, scroll_script]
+            outputs=[comparison_output],
         )
 
     demo.launch(
@@ -509,5 +611,3 @@ def launch_ui():
 
 if __name__ == "__main__":
     launch_ui()
-
-
