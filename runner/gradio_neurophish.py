@@ -190,8 +190,6 @@ def run_comparison(provider1, model1, provider2, model2, selected_categories):
 
 def launch_ui():
     custom_css = """
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
-
     :root {
         --primary-color: #6A11CB;
         --secondary-color: #2575FC;
@@ -203,6 +201,11 @@ def launch_ui():
         --card-background: #FFFFFF;
         --shadow-light: rgba(0, 0, 0, 0.05);
         --shadow-medium: rgba(0, 0, 0, 0.1);
+    }
+
+    .gradio-container, body, html {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+                Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
     body {
@@ -597,6 +600,15 @@ def launch_ui():
             inputs=[provider1, model1, categories],
             outputs=[results_output, summary_output, chart_output, status]
         )
+
+        demo.queue(concurrency_count=2, max_size=32)
+
+        @demo.app.get("/health")
+        async def health():
+            return {"ok": True}
+        
+        port = int(os.getenv("PORT", "10000"))
+        demo.launch(server_name="0.0.0.0", server_port=port, show_error=True)
 
         compare_btn.click(
             fn=run_comparison,
