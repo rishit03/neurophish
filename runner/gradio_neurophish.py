@@ -561,14 +561,19 @@ def launch_ui():
 
         with gr.Row():
             with gr.Column():
-                provider1 = gr.Dropdown(label="Platform 1", choices=list(MODEL_PROVIDERS.keys()), value="Groq")
-                model1 = gr.Dropdown(label="Model 1", choices=MODEL_PROVIDERS["Groq"]["models"])
+                provider1 = gr.Dropdown(label="Platform 1",
+                                        choices=list(MODEL_PROVIDERS.keys()), value="Groq")
+                model1 = gr.Dropdown(label="Model 1",
+                                    choices=MODEL_PROVIDERS["Groq"]["models"])
             with gr.Column():
-                provider2 = gr.Dropdown(label="Platform 2", choices=list(MODEL_PROVIDERS.keys()), value="Groq")
-                model2 = gr.Dropdown(label="Model 2", choices=MODEL_PROVIDERS["Groq"]["models"])
+                provider2 = gr.Dropdown(label="Platform 2",
+                                        choices=list(MODEL_PROVIDERS.keys()), value="Groq")
+                model2 = gr.Dropdown(label="Model 2",
+                                    choices=MODEL_PROVIDERS["Groq"]["models"])
 
-        categories = gr.CheckboxGroup(label="Bias Categories", choices=BIAS_CATEGORIES, value=BIAS_CATEGORIES)
-        
+        categories = gr.CheckboxGroup(label="Bias Categories",
+                                    choices=BIAS_CATEGORIES, value=BIAS_CATEGORIES)
+
         with gr.Row():
             run_btn = gr.Button("Run Test on Model 1")
             compare_btn = gr.Button("Compare Models")
@@ -576,7 +581,9 @@ def launch_ui():
         status = gr.Textbox(label="Status", value="Waiting to run...", interactive=False)
 
         results_output = gr.HTML()
-        summary_output = gr.HTML()
+        # If summary_data is dict, switch to gr.JSON()
+        summary_output = gr.HTML()  # or gr.JSON()
+        # Use gr.Plotly() if your figures are plotly
         chart_output = gr.Plot()
         comparison_output = gr.Plot(label="Comparison Chart", elem_id="comparison-chart")
 
@@ -593,6 +600,7 @@ def launch_ui():
             status_text = "Running test... please wait"
             cards, summary_data, chart_fig, _, _ = run_test(provider, model, selected_categories)
             results = "\n\n".join(cards)
+            # If summary_output is HTML, ensure summary_data is an HTML string; else cast/format.
             return results, summary_data, chart_fig, "Test complete."
 
         run_btn.click(
@@ -601,25 +609,21 @@ def launch_ui():
             outputs=[results_output, summary_output, chart_output, status]
         )
 
-        demo.queue(default_concurrency_limit=2, max_size=32)
-
-        demo.launch(
-            server_name="0.0.0.0",
-            server_port=int(os.getenv("PORT", 7860)),
-            show_api=False
-        )
-        
-        
-
         compare_btn.click(
             fn=run_comparison,
             inputs=[provider1, model1, provider2, model2, categories],
             outputs=[comparison_output],
         )
 
-    demo.launch(
-        server_name="0.0.0.0", server_port=10000
-    )
+        # Queue BEFORE launch; use Render's $PORT
+        demo.queue(default_concurrency_limit=2, max_size=32)
+        demo.launch(
+            server_name="0.0.0.0",
+            server_port=int(os.getenv("PORT", 7860)),
+            show_api=False
+            # optionally: favicon_path="assets/favicon.ico" to silence /favicon.ico 404
+            # optionally: root_path="/" if you ever mount under a subpath
+        )
 
 
 if __name__ == "__main__":
