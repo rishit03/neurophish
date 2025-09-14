@@ -14,19 +14,30 @@ MODEL_PROVIDERS = {
     "Groq": {
         "base_url": "https://api.groq.com/openai/v1",
         "env_var": "GROQ_API_KEY",
-        "models": ["llama3-8b-8192", "llama3-70b-8192"]
+        "models": [
+            "llama-3.1-8b-instant",
+            "llama-3.3-70b-versatile"
+        ]
     },
     "Together.ai": {
         "base_url": "https://api.together.xyz/v1",
         "env_var": "TOGETHER_API_KEY",
-        "models": ["mistralai/Mistral-7B-Instruct-v0.2", "mistralai/Mixtral-8x7B-Instruct-v0.1"]
+        "models": [
+            "mistralai/Mistral-7B-Instruct-v0.2",
+            "mistralai/Mixtral-8x7B-Instruct-v0.1"
+        ]
     },
     "OpenRouter.ai": {
         "base_url": "https://openrouter.ai/api/v1",
         "env_var": "OPENROUTER_API_KEY",
-        "models": ["openchat/openchat-3.5-1210", "mistralai/mistral-7b-instruct", "huggingfaceh4/zephyr-7b-beta"]
+        "models": [
+            "openchat/openchat-3.5-1210",
+            "mistralai/mistral-7b-instruct",
+            "huggingfaceh4/zephyr-7b-beta"
+        ]
     }
 }
+
 
 BIAS_CATEGORIES = ["anchoring", "appeal_emotion", "framing", "leading", "overload"]
 
