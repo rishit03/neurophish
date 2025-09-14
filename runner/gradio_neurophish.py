@@ -601,14 +601,15 @@ def launch_ui():
             outputs=[results_output, summary_output, chart_output, status]
         )
 
-        demo.queue(concurrency_count=2, max_size=32)
+        demo.queue(default_concurrency_limit=2, max_size=32)
 
-        @demo.app.get("/health")
-        async def health():
-            return {"ok": True}
+        demo.launch(
+            server_name="0.0.0.0",
+            server_port=int(os.getenv("PORT", 7860)),
+            show_api=False
+        )
         
-        port = int(os.getenv("PORT", "10000"))
-        demo.launch(server_name="0.0.0.0", server_port=port, show_error=True)
+        
 
         compare_btn.click(
             fn=run_comparison,
