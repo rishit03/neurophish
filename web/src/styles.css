@@ -5,6 +5,7 @@
 /* --- THEME VARIABLES --- */
 :root {
   /* Light theme */
+  --grid: 15 23 42;
   --bg-900: 246 248 251;   /* page background */
   --bg-800: 255 255 255;   /* surfaces */
   --txt-100: 17 24 39;     /* text */
@@ -16,6 +17,7 @@
 }
 
 .dark {
+  --grid: 255 255 255;
   --bg-900: 10 12 16;
   --bg-800: 19 22 30;
   --txt-100: 226 232 240;
@@ -55,6 +57,11 @@ html, body {
 .input { @apply rounded-xl px-3 py-2 outline-none; background: rgba(var(--glass)); border: 1px solid rgba(var(--border)); }
 .chip  { @apply inline-flex items-center px-3 py-1 rounded-full; background: rgba(var(--glass)); border: 1px solid rgba(var(--border)); }
 .mono  { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+/* src/styles.css — add below your variables block */
+.text-primary { color: rgb(var(--txt-100)); }
+.text-muted   { color: rgb(var(--txt-300)); }
+.bg-surface   { background-color: color-mix(in oklab, rgb(var(--bg-800)), rgba(var(--glass)) 20%); }
+.border-subtle{ border-color: rgba(var(--border)); }
 
 /* Glass cards + soft shadow */
 .card { @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)]; }

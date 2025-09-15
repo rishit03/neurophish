@@ -7,12 +7,13 @@ import { cn } from "../lib/utils";
 
 type Props = { item: RunItem; index: number };
 
+// in ResultCard.tsx
 const badgeStyles: Record<string, string> = {
-  BIASED: "bg-[color:rgb(244_63_94_/_0.18)] text-[color:rgb(244_63_94)] border-[color:rgb(244_63_94_/_0.35)]",
-  NEUTRAL: "bg-[color:rgb(234_179_8_/_0.2)] text-[color:rgb(202_138_4)] border-[color:rgb(234_179_8_/_0.35)]",
-  RESISTANT: "bg-[color:rgb(34_197_94_/_0.18)] text-[color:rgb(22_163_74)] border-[color:rgb(34_197_94_/_0.35)]",
-  SKIPPED: "bg-white/10 text-[color:rgb(var(--txt-300))] border-[rgba(var(--border))]",
-  UNSCORED: "bg-[color:rgb(168_85_247_/_0.18)] text-[color:rgb(147_51_234)] border-[color:rgb(168_85_247_/_0.35)]",
+  BIASED: "bg-[rgb(244_63_94_/_0.18)] text-[rgb(225_29_72)] border-[rgb(244_63_94_/_0.35)]",
+  NEUTRAL: "bg-[rgb(234_179_8_/_0.2)] text-[rgb(202_138_4)] border-[rgb(234_179_8_/_0.35)]",
+  RESISTANT: "bg-[rgb(34_197_94_/_0.18)] text-[rgb(22_163_74)] border-[rgb(34_197_94_/_0.35)]",
+  SKIPPED: "bg-white/10 text-muted border-subtle",
+  UNSCORED: "bg-[rgb(168_85_247_/_0.18)] text-[rgb(147_51_234)] border-[rgb(168_85_247_/_0.35)]",
 };
 
 function CopyButton({ text, label }: { text: string; label: string }) {
@@ -50,10 +51,10 @@ export default function ResultCard({ item, index }: Props) {
         "hover:shadow-[0_18px_60px_-15px_rgba(0,0,0,0.45)] transition-shadow"
       )}
     >
-      <div className="rounded-2xl bg-ink-800/70 backdrop-blur-xl p-5 border border-white/10">
+      <div className="rounded-2xl bg-surface backdrop-blur-xl p-5 border border-subtle">
         {/* Top row: meta + score badge */}
         <div className="flex items-center justify-between gap-3">
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-muted">
             {item.category} • <span className="opacity-80">{item.prompt_id}</span>
           </div>
           <span className={cn("px-2.5 py-1 rounded-full border text-xs font-medium", badgeStyles[item.score])}>
@@ -63,7 +64,7 @@ export default function ResultCard({ item, index }: Props) {
 
         {/* Prompt header */}
         <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-slate-200">
+          <div className="flex items-center gap-2 text-primary">
             <Quote className="opacity-70" size={18}/>
             <h3 className="text-sm font-semibold">Prompt</h3>
           </div>
@@ -91,7 +92,7 @@ export default function ResultCard({ item, index }: Props) {
               transition={{ duration: 0.28 }}
               className="overflow-hidden"
             >
-              <div className="mt-2 text-sm text-slate-300 leading-relaxed">
+              <div className="mt-2 text-sm text-muted leading-relaxed">
                 {item.prompt}
               </div>
             </motion.div>
@@ -102,7 +103,7 @@ export default function ResultCard({ item, index }: Props) {
         {item.response && (
           <div className="mt-5">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-slate-200">
+              <div className="flex items-center gap-2 text-primary">
                 <MessageSquare className="opacity-70" size={18}/>
                 <h3 className="text-sm font-semibold">Response</h3>
               </div>
@@ -110,7 +111,7 @@ export default function ResultCard({ item, index }: Props) {
             </div>
             <motion.pre
               layout
-              className="mt-2 whitespace-pre-wrap text-sm text-slate-100/90 bg-white/5 border border-white/10 rounded-xl p-3"
+              className="mt-2 whitespace-pre-wrap text-sm text-primary bg-surface border border-subtle rounded-xl p-3 mono"
             >
               {item.response}
             </motion.pre>
@@ -121,7 +122,7 @@ export default function ResultCard({ item, index }: Props) {
         {item.score_reason && (
           <div className="mt-5">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-slate-200">
+              <div className="flex items-center gap-2 text-primary">
                 <Info className="opacity-70" size={18}/>
                 <h3 className="text-sm font-semibold">Reason</h3>
               </div>
@@ -129,7 +130,7 @@ export default function ResultCard({ item, index }: Props) {
             </div>
             <motion.div
               layout
-              className="mt-2 text-sm text-indigo-200/90 bg-indigo-500/10 border border-indigo-400/30 rounded-xl p-3"
+              className="mt-2 text-sm text-primary bg-[rgb(var(--accent-1)/.08)] border border-[rgb(var(--accent-1)/.35)] rounded-xl p-3"
             >
               {item.score_reason}
             </motion.div>
@@ -138,7 +139,7 @@ export default function ResultCard({ item, index }: Props) {
 
         {/* Error (if any) */}
         {item.error && (
-          <div className="mt-4 text-xs text-rose-300">
+          <div className="mt-4 text-xs text-rose-500">
             {item.error}
           </div>
         )}
