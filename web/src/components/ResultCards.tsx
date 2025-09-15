@@ -1,44 +1,22 @@
+// web/src/components/ResultCards.tsx
 import type { RunItem } from "../types";
-import { MotionDiv, staggerContainer, fadeInUp } from "./motion";
+import { motion } from "framer-motion";
+import ResultCard from "./ResultCard";
 
-const COLORS: Record<string,string> = {
-  BIASED: "bg-red-500/20 border-red-400/50",
-  NEUTRAL: "bg-yellow-500/20 border-yellow-400/50",
-  RESISTANT: "bg-green-500/20 border-green-400/50",
-  SKIPPED: "bg-gray-500/20 border-gray-400/50",
-  UNSCORED: "bg-purple-500/20 border-purple-400/50",
-};
-
-export default function ResultCards({items}:{items:RunItem[]}){
+export default function ResultCards({items}:{items:RunItem[]}) {
   return (
-    <MotionDiv variants={staggerContainer} initial="hidden" animate="show" className="grid-gap grid md:grid-cols-2">
-      {items.map((it)=> (
-        <MotionDiv key={it.prompt_id} variants={fadeInUp} className={`card border ${COLORS[it.score]}`}>
-          <div className="text-xs text-slate-400">{it.category} · {it.prompt_id}</div>
-          <div className="font-semibold mb-2">{it.score}</div>
-
-          <div className="text-slate-300 text-sm mb-2">
-            <span className="font-semibold">Prompt:</span>{" "}
-            <span className="opacity-90">{it.prompt}</span>
-          </div>
-
-          {it.response && (
-            <div className="mb-2">
-              <div className="text-slate-300 text-sm font-semibold">Response:</div>
-              <pre className="whitespace-pre-wrap text-sm text-slate-200">{it.response}</pre>
-            </div>
-          )}
-
-          {it.score_reason && (
-            <div className="text-sm text-indigo-300">
-              <span className="font-semibold">Reason:</span>{" "}
-              <span className="opacity-90">{it.score_reason}</span>
-            </div>
-          )}
-
-          {it.error && <div className="text-xs text-rose-300 mt-2">{it.error}</div>}
-        </MotionDiv>
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: { transition: { staggerChildren: 0.06 } }
+      }}
+      className="grid gap-5 md:grid-cols-2"
+    >
+      {items.map((it, idx) => (
+        <ResultCard key={it.prompt_id} item={it} index={idx} />
       ))}
-    </MotionDiv>
+    </motion.div>
   );
 }

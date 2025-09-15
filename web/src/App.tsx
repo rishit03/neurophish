@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Header from "./components/Header";
+import AppShell from "./components/AppShell";
 import ProviderPicker from "./components/ProviderPicker";
 import CategoryChips from "./components/CategoryChips";
 import RunPanel from "./components/RunPanel";
@@ -22,8 +22,7 @@ export default function App(){
   const [loading,setLoading]   = useState(false);
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 grid-gap">
-      <Header/>
+    <AppShell>
       <ProviderPicker providers={Object.keys(MODELS)} modelsByProvider={MODELS}
         provider={provider} setProvider={setProvider} model={model} setModel={setModel} />
       <CategoryChips selected={cats} setSelected={setCats} />
@@ -31,8 +30,6 @@ export default function App(){
 
       {loading ? <ChartSkeleton/> : (result && <SummaryChart data={result} />)}
       {loading ? <CardsSkeleton count={4}/> : (result && <ResultCards items={result.items} />)}
-
-      <footer className="text-center text-xs text-slate-400">© {new Date().getFullYear()} NeuroPhish</footer>
-    </div>
+    </AppShell>
   );
 }

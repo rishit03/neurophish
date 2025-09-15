@@ -9,11 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "framer-motion": "^12.23.12",
+    "lucide-react": "^0.544.0",
     "plotly.js-dist-min": "^2.35.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@types/plotly.js": "^3.0.5",
