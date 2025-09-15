@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: "class", // <-- important
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -8,11 +8,11 @@ export default {
         ink: {
           900: "rgb(var(--bg-900) / <alpha-value>)",
           800: "rgb(var(--bg-800) / <alpha-value>)",
-        }
+        },
       },
       borderColor: {
         subtle: "rgb(var(--border) / <alpha-value>)",
-      }
+      },
     },
   },
   plugins: [],
