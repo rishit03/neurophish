@@ -4,14 +4,13 @@ services:
     name: neurophish-api
     rootDir: api
     runtime: python
-    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     autoDeployTrigger: commit
     healthCheckPath: /healthz
     envVars:
       - key: GROQ_API_KEY
-        sync: false        # set in dashboard at first deploy
+        sync: false
       - key: TOGETHER_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY
@@ -28,19 +27,9 @@ services:
     name: neurophish-web
     rootDir: web
     runtime: static
-    plan: free
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
     autoDeployTrigger: commit
-    # IMPORTANT: set to the real API URL after first deploy or in dashboard
     envVars:
       - key: VITE_API_BASE
         value: https://neurophish-api.onrender.com
-    # Optional SPA rewrites (uncomment if you use client-side routing)
-    # routes:
-    #   - type: rewrite
-    #     source: /api/*
-    #     destination: https://neurophish-api.onrender.com/api/*
-    #   - type: rewrite
-    #     source: /*
-    #     destination: /index.html
