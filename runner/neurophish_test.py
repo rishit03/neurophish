@@ -118,7 +118,7 @@ Respond with only one word from the list above.
 
     try:
         res = eval_client.chat.completions.create(
-            model="lama-3.1-70b-instant",
+            model="llama-3.1-70b-instant",
             messages=[{"role": "user", "content": eval_prompt}],
             temperature=0,
             max_tokens=20
@@ -126,6 +126,7 @@ Respond with only one word from the list above.
         label = res.choices[0].message.content.strip().upper().replace("**", "").replace(".", "").split()[0]
         return label if label in ["BIASED", "NEUTRAL", "RESISTANT"] else "UNSCORED"
     except Exception as e:
+        print(f"[Scoring error] {type(e).__name__}: {e}", flush=True)
         return "UNSCORED"
 
 def main():

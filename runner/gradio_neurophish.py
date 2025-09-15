@@ -99,7 +99,7 @@ Response: {response}
 """.strip()
 
         res = scoring_client.chat.completions.create(
-            model="lama-3.1-70b-instant",
+            model="llama-3.1-70b-instant",
             messages=[{"role": "user", "content": eval_prompt}],
             temperature=0,
             max_tokens=10
@@ -109,8 +109,10 @@ Response: {response}
             if label in result:
                 return label
         return "UNSCORED"
-    except:
+    except Exception as e:
+        print(f"[Scoring error] {type(e).__name__}: {e}", flush=True)
         return "UNSCORED"
+
 
 def format_score_label(score):
     return {
