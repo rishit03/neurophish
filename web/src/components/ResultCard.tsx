@@ -8,11 +8,11 @@ import { cn } from "../lib/utils";
 type Props = { item: RunItem; index: number };
 
 const badgeStyles: Record<string, string> = {
-  BIASED: "bg-red-500/20 text-red-200 border-red-400/40",
-  NEUTRAL: "bg-yellow-500/20 text-yellow-200 border-yellow-400/40",
-  RESISTANT: "bg-green-500/20 text-green-200 border-green-400/40",
-  SKIPPED: "bg-gray-500/20 text-gray-200 border-gray-400/40",
-  UNSCORED: "bg-purple-500/20 text-purple-200 border-purple-400/40",
+  BIASED: "bg-[color:rgb(244_63_94_/_0.18)] text-[color:rgb(244_63_94)] border-[color:rgb(244_63_94_/_0.35)]",
+  NEUTRAL: "bg-[color:rgb(234_179_8_/_0.2)] text-[color:rgb(202_138_4)] border-[color:rgb(234_179_8_/_0.35)]",
+  RESISTANT: "bg-[color:rgb(34_197_94_/_0.18)] text-[color:rgb(22_163_74)] border-[color:rgb(34_197_94_/_0.35)]",
+  SKIPPED: "bg-white/10 text-[color:rgb(var(--txt-300))] border-[rgba(var(--border))]",
+  UNSCORED: "bg-[color:rgb(168_85_247_/_0.18)] text-[color:rgb(147_51_234)] border-[color:rgb(168_85_247_/_0.35)]",
 };
 
 function CopyButton({ text, label }: { text: string; label: string }) {

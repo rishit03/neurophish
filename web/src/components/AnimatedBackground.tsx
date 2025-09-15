@@ -21,9 +21,9 @@ export default function AnimatedBackground() {
         transition={{ duration: .8 }}
       >
         <div className="absolute -top-40 -left-40 size-[50vmax] rounded-full blur-3xl"
-             style={{ background: "radial-gradient(closest-side, rgba(99,102,241,.25), transparent)" }} />
+             style={{ background: "radial-gradient(closest-side, rgb(var(--accent-1) / .22), transparent)" }} />
         <div className="absolute -bottom-40 -right-40 size-[50vmax] rounded-full blur-3xl"
-             style={{ background: "radial-gradient(closest-side, rgba(236,72,153,.18), transparent)" }} />
+             style={{ background: "radial-gradient(closest-side, rgb(var(--accent-2) / .18), transparent)" }} />
       </motion.div>
 
       {/* subtle grid */}

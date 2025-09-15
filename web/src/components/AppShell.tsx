@@ -9,22 +9,25 @@ export default function AppShell({ children }: PropsWithChildren) {
   const [theme, setTheme] = useState<"dark"|"light">("dark");
   const [openCmd, setOpenCmd] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    if (stored === "light") setTheme("light");
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault(); setOpenCmd(true);
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
+    useEffect(() => {
+      const stored = localStorage.getItem("theme");
+      if (stored === "light") setTheme("light");
+    }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    useEffect(() => {
+      const root = document.documentElement;
+      // smooth transition: add class briefly
+      root.classList.add("theme-transition");
+      const id = window.setTimeout(() => root.classList.remove("theme-transition"), 300);
+
+      if (theme === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
+
+      root.dataset.theme = theme; // optional
+      localStorage.setItem("theme", theme);
+
+      return () => clearTimeout(id);
+    }, [theme]);
 
   return (
     <div className="min-h-dvh relative">
