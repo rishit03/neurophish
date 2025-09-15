@@ -118,7 +118,7 @@ Respond with only one word from the list above.
 
     try:
         res = eval_client.chat.completions.create(
-            model="llama3-70b-8192",
+            model="lama-3.1-70b-instant",
             messages=[{"role": "user", "content": eval_prompt}],
             temperature=0,
             max_tokens=20
