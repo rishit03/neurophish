@@ -1,0 +1,33 @@
+services:
+  # 1) FastAPI backend
+  - type: web
+    name: neurophish-api
+    env: python
+    rootDir: api
+    plan: free            # pick your plan
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY               # set this in Render after creating the blueprint
+        sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: SCORING_MODELS
+        value: llama-3.3-70b-versatile,llama-3.1-8b-instant
+      - key: PROMPT_DIR
+        value: ../prompts
+      - key: CORS_ORIGINS
+        value: "*"
+    healthCheckPath: /healthz
+
+  # 2) React static front-end (Vite)
+  - type: static_site
+    name: neurophish-web
+    rootDir: web
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_BASE
+        value: https://neurophish-api.onrender.com
