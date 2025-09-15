@@ -1,4 +1,5 @@
 import type { RunItem } from "../types";
+import { MotionDiv, staggerContainer, fadeInUp } from "./motion";
 
 const COLORS: Record<string,string> = {
   BIASED: "bg-red-500/20 border-red-400/50",
@@ -10,19 +11,17 @@ const COLORS: Record<string,string> = {
 
 export default function ResultCards({items}:{items:RunItem[]}){
   return (
-    <div className="grid-gap grid md:grid-cols-2">
-      {items.map(it=> (
-        <div key={it.prompt_id} className={`card border ${COLORS[it.score]}`}>
+    <MotionDiv variants={staggerContainer} initial="hidden" animate="show" className="grid-gap grid md:grid-cols-2">
+      {items.map((it)=> (
+        <MotionDiv key={it.prompt_id} variants={fadeInUp} className={`card border ${COLORS[it.score]}`}>
           <div className="text-xs text-slate-400">{it.category} · {it.prompt_id}</div>
           <div className="font-semibold mb-2">{it.score}</div>
 
-          {/* Prompt */}
           <div className="text-slate-300 text-sm mb-2">
             <span className="font-semibold">Prompt:</span>{" "}
             <span className="opacity-90">{it.prompt}</span>
           </div>
 
-          {/* Response */}
           {it.response && (
             <div className="mb-2">
               <div className="text-slate-300 text-sm font-semibold">Response:</div>
@@ -30,7 +29,6 @@ export default function ResultCards({items}:{items:RunItem[]}){
             </div>
           )}
 
-          {/* Reason */}
           {it.score_reason && (
             <div className="text-sm text-indigo-300">
               <span className="font-semibold">Reason:</span>{" "}
@@ -38,10 +36,9 @@ export default function ResultCards({items}:{items:RunItem[]}){
             </div>
           )}
 
-          {/* Error */}
           {it.error && <div className="text-xs text-rose-300 mt-2">{it.error}</div>}
-        </div>
+        </MotionDiv>
       ))}
-    </div>
+    </MotionDiv>
   );
 }

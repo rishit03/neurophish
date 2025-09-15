@@ -9,3 +9,35 @@ body { @apply bg-ink-900 text-slate-100; }
 .input{ @apply bg-ink-700/70 border border-white/10 rounded-xl px-3 py-2; }
 .chip { @apply inline-flex items-center px-3 py-1 rounded-full bg-ink-700/80 border border-white/10; }
 .grid-gap { @apply grid gap-5; }
+
+/* Glass cards + soft shadow */
+.card { @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)]; }
+
+/* Primary button */
+.btn  { @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 active:scale-95 transition font-medium; }
+
+/* Ghost button */
+.btn-ghost { @apply inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition; }
+
+/* Input */
+.input{ @apply bg-white/5 border border-white/10 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-400/40; }
+
+/* Chips */
+.chip { @apply inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition; }
+
+/* Grid helper */
+.grid-gap { @apply grid gap-5; }
+
+/* Shimmer skeleton */
+.skeleton {
+  @apply relative overflow-hidden bg-white/10 rounded-lg;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  animation: shimmer 1.3s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }

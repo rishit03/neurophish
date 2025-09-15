@@ -9,5 +9,5 @@
     "baseUrl": ".",
     "paths": { "*": ["./*"] }
   },
-  "include": ["src", "vite-env.d.ts"]
+  "include": ["src", "vite-env.d.ts", "src/plotly-js-dist-min.d.ts"]
 }

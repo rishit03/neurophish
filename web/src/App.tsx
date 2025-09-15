@@ -5,6 +5,7 @@ import CategoryChips from "./components/CategoryChips";
 import RunPanel from "./components/RunPanel";
 import ResultCards from "./components/ResultCards";
 import SummaryChart from "./components/SummaryChart";
+import { CardsSkeleton, ChartSkeleton } from "./components/Skeletons";
 import type { RunResponse } from "./types";
 
 const MODELS: Record<string,string[]> = {
@@ -27,9 +28,10 @@ export default function App(){
         provider={provider} setProvider={setProvider} model={model} setModel={setModel} />
       <CategoryChips selected={cats} setSelected={setCats} />
       <RunPanel provider={provider} model={model} categories={cats} onResult={setResult} setLoading={setLoading} />
-      {loading && <div className="card">Running…</div>}
-      {result && <SummaryChart data={result} />}
-      {result && <ResultCards items={result.items} />}
+
+      {loading ? <ChartSkeleton/> : (result && <SummaryChart data={result} />)}
+      {loading ? <CardsSkeleton count={4}/> : (result && <ResultCards items={result.items} />)}
+
       <footer className="text-center text-xs text-slate-400">© {new Date().getFullYear()} NeuroPhish</footer>
     </div>
   );
