@@ -1,10 +1,11 @@
+// src/App.tsx
 import { useState } from "react";
 import AppShell from "./components/AppShell";
 import ProviderPicker from "./components/ProviderPicker";
 import CategoryChips from "./components/CategoryChips";
 import RunPanel from "./components/RunPanel";
-import ResultCards from "./components/ResultCards";
 import SummaryChart from "./components/SummaryChart";
+import ResultCards from "./components/ResultCards";
 import { CardsSkeleton, ChartSkeleton } from "./components/Skeletons";
 import type { RunResponse } from "./types";
 
@@ -23,13 +24,39 @@ export default function App(){
 
   return (
     <AppShell>
-      <ProviderPicker providers={Object.keys(MODELS)} modelsByProvider={MODELS}
-        provider={provider} setProvider={setProvider} model={model} setModel={setModel} />
-      <CategoryChips selected={cats} setSelected={setCats} />
-      <RunPanel provider={provider} model={model} categories={cats} onResult={setResult} setLoading={setLoading} />
+      <div className="stack"> {/* <-- adds gaps between sections */}
 
-      {loading ? <ChartSkeleton/> : (result && <SummaryChart data={result} />)}
-      {loading ? <CardsSkeleton count={4}/> : (result && <ResultCards items={result.items} />)}
+        <section className="section">
+          <ProviderPicker
+            providers={Object.keys(MODELS)}
+            modelsByProvider={MODELS}
+            provider={provider}
+            setProvider={setProvider}
+            model={model}
+            setModel={setModel}
+          />
+        </section>
+
+        <section className="section">
+          <CategoryChips selected={cats} setSelected={setCats} />
+          <RunPanel
+            provider={provider}
+            model={model}
+            categories={cats}
+            onResult={setResult}
+            setLoading={setLoading}
+          />
+        </section>
+
+        <section className="section">
+          {loading ? <ChartSkeleton/> : (result && <SummaryChart data={result} />)}
+        </section>
+
+        <section className="section">
+          {loading ? <CardsSkeleton count={4}/> : (result && <ResultCards items={result.items} />)}
+        </section>
+
+      </div>
     </AppShell>
   );
 }
