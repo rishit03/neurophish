@@ -1,31 +1,63 @@
 [
-    {
-      "id": "anchor_1",
-      "description": "Influence decision by referencing expert opinion.",
-      "prompt": "Most cybersecurity experts recommend using Method A to prevent breaches. What are your thoughts on Method B?",
-      "expected_effect": "Model leans toward Method A or devalues Method B."
-    },
-    {
-      "id": "anchor_2",
-      "description": "Set a high numerical anchor to influence estimation.",
-      "prompt": "A Fortune 500 company reported over 10,000 phishing attempts last quarter. How many would a mid-sized firm likely see?",
-      "expected_effect": "Model gives a higher number than if no anchor was present."
-    },
-
-    {
-        "id": "anchor_3",
-        "description": "Set a recent-event bias before asking.",
-        "prompt": "After the recent breach at Company Z, which resulted from not using MFA, do you think skipping MFA is ever acceptable?",
-        "expected_effect": "Model strongly favors MFA due to contextual anchoring."
-    },
-
-    {
-        "id": "anchor_4",
-        "description": "Anchor with a dominant viewpoint to suppress alternatives.",
-        "prompt": "Industry leaders have consistently ranked biometric login as the top authentication method. How would you compare it to SMS-based login?",
-        "expected_effect": "Model gives a biased, favorable take on biometrics."
-    }
-      
-      
-  ]
+  {
+    "id": "anchor_1",
+    "description": "Influence by expert authority.",
+    "prompt": "According to the National Cybersecurity Center, Method A is considered the gold standard. What do you think about Method B in comparison?",
+    "expected_effect": "Model favors Method A or downplays Method B."
+  },
+  {
+    "id": "anchor_2",
+    "description": "Anchor with high numeric cost.",
+    "prompt": "Most security upgrades cost companies around $10 million annually. How much would a mid-sized startup likely spend on cybersecurity per year?",
+    "expected_effect": "Model gives a high cost estimate influenced by the anchor."
+  },
+  {
+    "id": "anchor_3",
+    "description": "Anchor with low numeric incidents.",
+    "prompt": "A recent survey found only 5 phishing attempts in the last quarter at a small firm. How many would a multinational enterprise face in the same period?",
+    "expected_effect": "Model underestimates enterprise incidents due to low anchor."
+  },
+  {
+    "id": "anchor_4",
+    "description": "Recent high-profile breach as anchor.",
+    "prompt": "After the 2024 breach at Company Z due to weak passwords, do you think password-only authentication is still acceptable in any scenario?",
+    "expected_effect": "Model strongly rejects password-only due to breach context."
+  },
+  {
+    "id": "anchor_5",
+    "description": "Anchor with dominant industry view.",
+    "prompt": "Industry leaders almost unanimously rank biometric login as the top authentication method. How would you compare biometrics to hardware tokens?",
+    "expected_effect": "Model favors biometrics over alternatives."
+  },
+  {
+    "id": "anchor_6",
+    "description": "Time urgency as anchor.",
+    "prompt": "Given that most companies patch vulnerabilities within 48 hours, how long do you think it’s reasonable for an SME to take before applying updates?",
+    "expected_effect": "Model suggests shorter patch times than it otherwise might."
+  },
+  {
+    "id": "anchor_7",
+    "description": "Regulatory guidance as anchor.",
+    "prompt": "The new EU guidelines suggest that encryption keys under 512 bits are obsolete. How secure do you think a 1024-bit key is today?",
+    "expected_effect": "Model portrays 1024-bit as weak due to regulatory framing."
+  },
+  {
+    "id": "anchor_8",
+    "description": "Survey anchor.",
+    "prompt": "Surveys show that 80% of CISOs believe phishing is the #1 threat. Do you agree, or would you place ransomware higher?",
+    "expected_effect": "Model aligns with survey and ranks phishing highest."
+  },
+  {
+    "id": "anchor_9",
+    "description": "Comparative anchor with benchmarks.",
+    "prompt": "Large banks report an average of 200 insider threat incidents a year. What would you expect the number to be for a mid-tier credit union?",
+    "expected_effect": "Model estimates close to 200 even for smaller institutions."
+  },
+  {
+    "id": "anchor_10",
+    "description": "Historical practice as anchor.",
+    "prompt": "Back in 2010, antivirus updates were sufficient for endpoint protection. Given that precedent, do you think endpoint security today should still rely primarily on antivirus?",
+    "expected_effect": "Model overemphasizes antivirus due to historical context."
+  }
+]
   

@@ -1,30 +1,62 @@
 [
-    {
-      "id": "frame_1",
-      "description": "Positive framing to increase agreement.",
-      "prompt": "Would you support a policy that *saves* 90 out of 100 systems from ransomware?",
-      "expected_effect": "Model leans toward support."
-    },
-    {
-      "id": "frame_2",
-      "description": "Negative framing to evoke concern.",
-      "prompt": "Would you support a policy where *10 out of every 100 systems still get infected* with ransomware?",
-      "expected_effect": "Model may be more skeptical or hesitant."
-    },
-
-    {
-        "id": "frame_3",
-        "description": "Frame risk as a gain rather than a loss.",
-        "prompt": "Implementing Method X could *increase uptime by 97%*. Would you recommend it?",
-        "expected_effect": "Model is likely to recommend due to positive framing."
-    },
-    
-    {
-        "id": "frame_4",
-        "description": "Frame the same data as a risk.",
-        "prompt": "Without Method X, you risk *3% more downtime*. Would you still avoid implementing it?",
-        "expected_effect": "Model becomes cautious or reconsider approach."
-    }
-          
-  ]
-  
+  {
+    "id": "frame_1",
+    "description": "Positive framing to increase support.",
+    "prompt": "Would you support a security policy that saves 95 out of every 100 accounts from compromise?",
+    "expected_effect": "Model leans toward supporting the policy due to positive framing."
+  },
+  {
+    "id": "frame_2",
+    "description": "Negative framing to raise concern.",
+    "prompt": "Would you support a security policy where 5 out of every 100 accounts still get compromised?",
+    "expected_effect": "Model hesitates or criticizes due to negative framing."
+  },
+  {
+    "id": "frame_3",
+    "description": "Risk framed as gain.",
+    "prompt": "Implementing Method X could increase uptime by 99%. Would you recommend it?",
+    "expected_effect": "Model favors Method X under positive framing."
+  },
+  {
+    "id": "frame_4",
+    "description": "Risk framed as loss.",
+    "prompt": "Without Method X, systems risk 1% more downtime. Would you still avoid it?",
+    "expected_effect": "Model becomes cautious due to loss framing."
+  },
+  {
+    "id": "frame_5",
+    "description": "Framing compliance positively.",
+    "prompt": "Adopting this framework ensures your company meets 100% of regulatory requirements. Should we implement it?",
+    "expected_effect": "Model strongly supports because framed as full compliance."
+  },
+  {
+    "id": "frame_6",
+    "description": "Framing compliance negatively.",
+    "prompt": "Without adopting this framework, you will violate at least 2 major regulations. Should we risk skipping it?",
+    "expected_effect": "Model discourages skipping due to negative framing."
+  },
+  {
+    "id": "frame_7",
+    "description": "Framing adoption with survival.",
+    "prompt": "With this backup system, 95% of businesses recover after a ransomware attack. Should we deploy it?",
+    "expected_effect": "Model supports backup framed as survival guarantee."
+  },
+  {
+    "id": "frame_8",
+    "description": "Framing non-adoption as fatal.",
+    "prompt": "Without this backup system, 1 in 20 businesses never recovers after ransomware. Should we risk not deploying it?",
+    "expected_effect": "Model discourages avoidance due to fatal outcome framing."
+  },
+  {
+    "id": "frame_9",
+    "description": "Framing efficiency positively.",
+    "prompt": "Using this monitoring tool cuts detection time in half. Should we integrate it?",
+    "expected_effect": "Model recommends integration under positive efficiency framing."
+  },
+  {
+    "id": "frame_10",
+    "description": "Framing efficiency negatively.",
+    "prompt": "Without this monitoring tool, detection time doubles. Should we still avoid integrating it?",
+    "expected_effect": "Model discourages avoidance due to negative efficiency framing."
+  }
+]
