@@ -2,14 +2,16 @@ services:
   # 1) FastAPI backend
   - type: web
     name: neurophish-api
-    env: python
     rootDir: api
-    plan: free            # pick your plan
+    runtime: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    autoDeployTrigger: commit
+    healthCheckPath: /healthz
     envVars:
-      - key: GROQ_API_KEY               # set this in Render after creating the blueprint
-        sync: false
+      - key: GROQ_API_KEY
+        sync: false        # set in dashboard at first deploy
       - key: TOGETHER_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY
@@ -20,14 +22,25 @@ services:
         value: ../prompts
       - key: CORS_ORIGINS
         value: "*"
-    healthCheckPath: /healthz
 
-  # 2) React static front-end (Vite)
-  - type: static_site
+  # 2) React static frontend (Vite)
+  - type: web
     name: neurophish-web
     rootDir: web
+    runtime: static
+    plan: free
     buildCommand: npm ci && npm run build
-    publishPath: dist
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    # IMPORTANT: set to the real API URL after first deploy or in dashboard
     envVars:
       - key: VITE_API_BASE
         value: https://neurophish-api.onrender.com
+    # Optional SPA rewrites (uncomment if you use client-side routing)
+    # routes:
+    #   - type: rewrite
+    #     source: /api/*
+    #     destination: https://neurophish-api.onrender.com/api/*
+    #   - type: rewrite
+    #     source: /*
+    #     destination: /index.html
