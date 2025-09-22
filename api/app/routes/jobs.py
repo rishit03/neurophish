@@ -1,13 +1,19 @@
 # app/routes/jobs.py
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from ..services.jobs import create_job, set_status, get_job, run_in_thread
-from ..services.prompts import load_many
-from ..services.runner import run as run_tests  # may be async
-import asyncio, json
+import asyncio
+import inspect
+import traceback
 from typing import Any
 
+from fastapi import APIRouter, HTTPException
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
+
+from ..services.jobs import create_job, set_status, get_job, run_in_thread
+from ..services.prompts import load_many
+from ..services.runner import run as run_tests  # may be sync or async
+
 router = APIRouter()
+
 
 class JobReq(BaseModel):
     provider: str
@@ -16,36 +22,31 @@ class JobReq(BaseModel):
     limit_per_category: int | None = None
 
 
-def _to_jsonable(obj: Any) -> Any:
+def _run_coroutine_safe(coro: Any) -> Any:
     """
-    Make sure whatever we got back is JSON-serializable.
-    - If it's a FastAPI/Starlette Response, extract body.
-    - If it's a Pydantic model, use model_dump().
-    - If it's bytes, decode.
-    - Else return as-is (dict/list/str/number/None are OK).
+    Run a coroutine from a synchronous context and return its result.
+    Uses asyncio.run normally; if an event loop is already running,
+    create a temporary loop to run the coroutine.
     """
-    # Starlette/FastAPI Response-like
-    if hasattr(obj, "body"):
+    try:
+        return asyncio.run(coro)
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
         try:
-            return json.loads(obj.body.decode())
-        except Exception:
-            return obj.body.decode()
-
-    # Pydantic v2
-    if hasattr(obj, "model_dump"):
-        return obj.model_dump()
-
-    # Pydantic v1
-    if hasattr(obj, "dict"):
-        return obj.dict()
-
-    if isinstance(obj, (bytes, bytearray)):
-        return obj.decode()
-
-    return obj
+            return loop.run_until_complete(coro)
+        finally:
+            try:
+                loop.close()
+            except Exception:
+                pass
 
 
-def _do_job(jid: str, req: JobReq):
+def _do_job(jid: str, req: JobReq) -> None:
+    """
+    Worker function that performs the job and updates job status.
+    It handles both sync and async run_tests and ensures the stored
+    result is JSON-serializable (or a safe fallback).
+    """
     try:
         set_status(jid, "running")
 
@@ -54,33 +55,32 @@ def _do_job(jid: str, req: JobReq):
             for k, v in prompts_by_cat.items():
                 prompts_by_cat[k] = v[: req.limit_per_category]
 
-        # run_tests might be async or sync – handle both
-        if asyncio.iscoroutinefunction(run_tests):
-            result = asyncio.run(
-                run_tests(
-                    provider=req.provider,
-                    model=req.model,
-                    prompts_by_cat=prompts_by_cat,
-                )
-            )
+        # run_tests may be synchronous or return an awaitable (coroutine)
+        maybe_result = run_tests(provider=req.provider, model=req.model, prompts_by_cat=prompts_by_cat)
+
+        if inspect.isawaitable(maybe_result):
+            result = _run_coroutine_safe(maybe_result)
         else:
-            result = run_tests(
-                provider=req.provider,
-                model=req.model,
-                prompts_by_cat=prompts_by_cat,
-            )
+            result = maybe_result
 
-        set_status(jid, "done", result=_to_jsonable(result))
+        # Try to make the result JSON-serializable. If it fails, fallback to a safe dict.
+        try:
+            serializable = jsonable_encoder(result)
+        except Exception:
+            serializable = {"_unserializable_result": True, "value": str(result)}
 
+        set_status(jid, "done", result=serializable)
     except Exception as e:
-        # store a safe string so status/result endpoints never 500
+        tb = traceback.format_exc()
+        # Print to stdout/stderr so render logs capture it
+        print(f"[jobs] _do_job FAILED for job {jid}: {e}\n{tb}", flush=True)
         set_status(jid, "error", error=f"{type(e).__name__}: {e}")
 
 
 @router.post("/jobs")
 def create(req: JobReq):
     jid = create_job()
-    run_in_thread(_do_job, jid, req)  # returns immediately
+    run_in_thread(_do_job, jid, req)
     return {"job_id": jid, "status": "queued"}
 
 
@@ -98,6 +98,5 @@ def result(job_id: str):
     if not j:
         raise HTTPException(404, "job not found")
     if j["status"] != "done":
-        # 202 = Accepted (not ready)
         raise HTTPException(202, "not ready")
     return j["result"]
