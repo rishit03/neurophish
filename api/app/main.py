@@ -21,3 +21,7 @@ app.include_router(jobs_routes.router)
 @app.get("/healthz")
 def health():
     return {"ok": True}
+
+@app.get("/__routes")
+def _routes():
+    return [r.path for r in app.router.routes]
