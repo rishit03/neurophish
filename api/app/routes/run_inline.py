@@ -6,7 +6,9 @@ from typing import Dict, List, Any
 import inspect
 import traceback
 
-from ..services.runner import run as run_tests
+# from ..services.runner import run as run_tests
+from ..services.runner import run_inline_prompts as run_tests
+
 from ..services.providers import PROVIDERS
 
 router = APIRouter()
