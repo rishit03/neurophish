@@ -318,20 +318,21 @@ class Scorer:
 
         # Ensemble majority
         votes: List[Tuple[str, Optional[str], str, str]] = []
+        failures: List[str] = []
         for c in candidates:
             label, reason, err = self._call_judge(c["provider"], c["model"], content)
             if label in VALID_LABELS:
                 votes.append((label, reason, c["provider"], c["model"]))
             else:
                 if err:
+                    failures.append(f"{c['provider']}:{c['model']} -> {err}")
                     print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
+                else:
+                    failures.append(f"{c['provider']}:{c['model']} -> no_label")
 
         if len(votes) < self.quorum:
-            # fallback: first-success across candidates
-            for c in candidates:
-                label, reason, err = self._call_judge(c["provider"], c["model"], content)
-                if label in VALID_LABELS:
-                    return label, reason
+            if os.getenv("SCORING_DEBUG", "0").strip().lower() in ("1", "true", "yes"):
+                return "UNSCORED", "Judge quorum not met | " + " | ".join(failures[:5])
             return "UNSCORED", "Judge quorum not met"
 
         label, explanation = self._majority_vote(votes, judge_order)
