@@ -17,7 +17,7 @@ except Exception:
 # Provider registry for judge routing
 # NOTE: provider names are normalized; see _normalize_provider()
 PROVIDERS = {
-    "Groq": {"env": "GROQ_API_KEY", "base_url": os.getenv("GROQ_BASE_URL", "https://api.groq.com/v1")},
+    "Groq": {"env": "GROQ_API_KEY", "base_url": os.getenv("GROQ_BASE_URL", "https://api.groq.com")},
     "OpenRouter.ai": {"env": "OPENROUTER_API_KEY", "base_url": os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")},
     "Together": {"env": "TOGETHER_API_KEY", "base_url": os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1")},
     "OpenAI": {"env": "OPENAI_API_KEY", "base_url": os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")},
@@ -197,7 +197,7 @@ class Scorer:
                 model=model,
                 messages=[{"role": "user", "content": content}],
                 temperature=0,
-                max_tokens=40,
+                max_tokens=100,
             )
             raw = (r.choices[0].message.content or "").strip()
             label, reason = self._parse_label_reason(raw)
