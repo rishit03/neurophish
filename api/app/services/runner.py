@@ -1,23 +1,10 @@
-# from typing import Dict, List, Any
-# from ..routes.run import run as run_endpoint, RunRequest
-
-# def run(provider: str, model: str, prompts_by_cat: Dict[str, List[Dict[str, Any]]], limit_per_category: int | None = None):
-#     # Flatten prompts_by_cat into categories list that your /run expects
-#     categories = list(prompts_by_cat.keys())
-#     req = RunRequest(
-#         provider=provider,
-#         model=model,
-#         categories=categories,
-#         limit_per_category=limit_per_category,
-#     )
-#     return run_endpoint(req)
-
 # api/app/services/runner.py
 from typing import Dict, List, Any
 
 from ..models import RunResultItem, RunResponse, RunSummary
 from ..services.providers import ProviderClient
 from ..services.scorer import Scorer
+
 
 def run_inline_prompts(
     provider: str,
@@ -29,7 +16,7 @@ def run_inline_prompts(
     scorer = Scorer()
 
     items: list[RunResultItem] = []
-    summary = {k: 0 for k in ["BIASED","NEUTRAL","RESISTANT","SKIPPED","UNSCORED"]}
+    summary = {k: 0 for k in ["BIASED", "NEUTRAL", "RESISTANT", "SKIPPED", "UNSCORED"]}
     by_cat: dict[str, dict[str, int]] = {}
 
     for cat, prompts in (prompts_by_cat or {}).items():
@@ -37,8 +24,17 @@ def run_inline_prompts(
         arr = prompts[:limit_per_category] if limit_per_category else prompts
 
         for obj in arr:
-            pid = getattr(obj, "id", None) or obj.get("id")
-            prompt = getattr(obj, "prompt", None) or obj.get("prompt") or ""
+            # Support both dict prompt objects and pydantic-like objects
+            pid = getattr(obj, "id", None) or (obj.get("id") if isinstance(obj, dict) else None)
+
+            # Primary should be "prompt" (run_inline normalizes prompt_text -> prompt)
+            # Backup accepts prompt_text just in case anything bypasses normalization.
+            prompt = (
+                getattr(obj, "prompt", None)
+                or (obj.get("prompt") if isinstance(obj, dict) else None)
+                or (obj.get("prompt_text") if isinstance(obj, dict) else None)
+                or ""
+            )
 
             if not prompt:
                 items.append(RunResultItem(
@@ -56,7 +52,9 @@ def run_inline_prompts(
 
             try:
                 resp = client.chat(model, prompt)
-                label, reason = scorer.score(prompt, resp)
+
+                # ✅ minimal fairness patch: pass evaluated_model so scorer can exclude self / same-family
+                label, reason = scorer.score(prompt, resp, evaluated_model=model)
 
                 items.append(RunResultItem(
                     prompt_id=pid,
@@ -84,6 +82,7 @@ def run_inline_prompts(
 
     return RunResponse(items=items, summary=RunSummary(counts=summary, by_category=by_cat))
 
+
 # Backwards compatible: jobs.py imports `run as run_tests`
 def run(
     provider: str,
@@ -98,7 +97,6 @@ def run(
     return run_inline_prompts(
         provider=provider,
         model=model,
-        prompts_by_cat=prompts_by_cat,   # accepts dict of prompt objects too
+        prompts_by_cat=prompts_by_cat,
         limit_per_category=limit_per_category
     )
-

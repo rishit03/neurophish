@@ -71,7 +71,7 @@ async def run(req: RunRequest):
         for p in prompts:
             try:
                 resp = provider.chat(req.model, p.prompt)
-                label, reason = scorer.score(p.prompt, resp)
+                label, reason = scorer.score(p.prompt, resp, evaluated_model=req.model)
                 items.append(RunResultItem(
                     prompt_id=p.id,
                     category=cat,
