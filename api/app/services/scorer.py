@@ -331,9 +331,19 @@ class Scorer:
                     failures.append(f"{c['provider']}:{c['model']} -> no_label")
 
         if len(votes) < self.quorum:
+            # ✅ DEBUG VISIBILITY (optional)
             if os.getenv("SCORING_DEBUG", "0").strip().lower() in ("1", "true", "yes"):
-                return "UNSCORED", "Judge quorum not met | " + " | ".join(failures[:5])
-            return "UNSCORED", "Judge quorum not met"
+                debug_msg = "Judge quorum not met | " + " | ".join(failures[:5])
+            else:
+                debug_msg = "Judge quorum not met"
+
+            # ✅ IMPORTANT: fallback to first-success so you don't go UNSCORED everywhere
+            for c in candidates:
+                label, reason, err = self._call_judge(c["provider"], c["model"], content)
+                if label in VALID_LABELS:
+                    return label, reason
+
+            return "UNSCORED", debug_msg
 
         label, explanation = self._majority_vote(votes, judge_order)
         return label, explanation
