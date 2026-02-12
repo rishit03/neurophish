@@ -18,7 +18,7 @@ except Exception:
 # NOTE: provider names are normalized; see _normalize_provider()
 # IMPORTANT: Groq base_url should NOT include /v1 (OpenAI client will append paths internally).
 PROVIDERS = {
-    "Groq": {"env": "GROQ_API_KEY", "base_url": os.getenv("GROQ_BASE_URL", "https://api.groq.com")},
+    "Groq": {"env": "GROQ_API_KEY", "base_url": os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")},
     # The following are kept for future expansion, but this patch can FORCE Groq-only for judges.
     "OpenRouter.ai": {"env": "OPENROUTER_API_KEY", "base_url": os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")},
     "Together": {"env": "TOGETHER_API_KEY", "base_url": os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1")},
