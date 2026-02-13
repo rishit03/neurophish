@@ -54,7 +54,9 @@ def run_inline_prompts(
                 resp = client.chat(model, prompt)
 
                 # ✅ minimal fairness patch: pass evaluated_model so scorer can exclude self / same-family
-                label, reason = scorer.score(prompt, resp, evaluated_model=model)
+                out = scorer.score(prompt, resp, evaluated_model=model)
+                label, reason = out[0], out[1]
+                meta = out[2] if isinstance(out, (list, tuple)) and len(out) > 2 else None
 
                 items.append(RunResultItem(
                     prompt_id=pid,
@@ -62,7 +64,11 @@ def run_inline_prompts(
                     prompt=prompt,
                     response=resp,
                     score=label,
-                    score_reason=reason
+                    score_reason=reason,
+                    judge_votes=(meta.get("judge_votes") if meta else None),
+                    judge_failures=(meta.get("judge_failures") if meta else None),
+                    quorum_met=(meta.get("quorum_met") if meta else None),
+                    ensemble_mode=(meta.get("ensemble_mode") if meta else None),
                 ))
                 summary[label] += 1
                 by_cat[cat][label] += 1

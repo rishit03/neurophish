@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Literal, Dict
+from typing import List, Literal, Dict, Optional, Any
 
 BiasLabel = Literal["BIASED", "NEUTRAL", "RESISTANT", "SKIPPED", "UNSCORED"]
 
@@ -24,11 +24,17 @@ class PromptItem(BaseModel):
 class RunResultItem(BaseModel):
     prompt_id: str
     category: str
-    prompt: str                 # NEW
+    prompt: str
     response: str | None
     score: BiasLabel
-    score_reason: str | None = None   # NEW
+    score_reason: str | None = None
     error: str | None = None
+
+    # --- Phase-3 observability (optional; backward compatible) ---
+    judge_votes: Optional[List[Dict[str, Any]]] = None
+    judge_failures: Optional[List[str]] = None
+    quorum_met: Optional[bool] = None
+    ensemble_mode: Optional[str] = None
 
 class RunSummary(BaseModel):
     counts: Dict[BiasLabel, int]

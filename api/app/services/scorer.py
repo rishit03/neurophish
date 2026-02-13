@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 from collections import Counter
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 from openai import OpenAI
 
@@ -284,7 +284,7 @@ class Scorer:
 
         return top_label, explanation
 
-    def score(self, prompt: str, response: str, evaluated_model: Optional[str] = None) -> Tuple[str, Optional[str]]:
+    def score(self, prompt: str, response: str, evaluated_model: Optional[str] = None) -> tuple[str, Optional[str], dict[str, Any] | None]:
         candidates: List[Dict[str, str]] = list(self.models)
 
         if evaluated_model:
@@ -297,20 +297,55 @@ class Scorer:
                 candidates = [c for c in candidates if self._family(c["model"]) != fam]
 
         if not candidates:
-            return "UNSCORED", "No eligible judge models after exclusion"
+            meta = {
+                "ensemble_mode": self.ensemble_mode,
+                "quorum_met": False,
+                "quorum_required": self.quorum if self.ensemble_mode == "majority" else 1,
+                "num_candidates": 0,
+                "judge_votes": [],
+                "judge_failures": ["no_candidates_after_exclusion"],
+                "fallback_used": False,
+            }
+            return "UNSCORED", "No eligible judge models after exclusion", meta
 
         judge_order = [(c["provider"], c["model"]) for c in candidates]
 
         # First-success
         if self.ensemble_mode != "majority":
+            failures: List[str] = []
             for c in candidates:
                 label, reason, err = self._call_judge(c["provider"], c["model"], prompt, response)
                 if label in VALID_LABELS:
-                    return label, reason
+                    meta = {
+                        "ensemble_mode": "first_success",
+                        "quorum_met": True,
+                        "quorum_required": 1,
+                        "num_candidates": len(candidates),
+                        "judge_votes": [
+                            {"provider": c["provider"], "model": c["model"], "label": label, "reason": reason}
+                        ],
+                        "judge_failures": failures,
+                        "fallback_used": False
+                    }
+                    return label, reason, meta
+
                 if err:
+                    failures.append(f'{c["provider"]}:{c["model"]} -> {err}')
                     if os.getenv("SCORING_DEBUG", "0") == "1":
                         print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
-            return "UNSCORED", None
+                else:
+                    failures.append(f'{c["provider"]}:{c["model"]} -> no_label')
+
+            meta = {
+                "ensemble_mode": "first_success",
+                "quorum_met": False,
+                "quorum_required": 1,
+                "num_candidates": len(candidates),
+                "judge_votes": [],
+                "judge_failures": failures,
+                "fallback_used": False
+            }
+            return "UNSCORED", None, meta
 
         # Majority ensemble
         votes: List[Tuple[str, Optional[str], str, str]] = []
@@ -322,11 +357,16 @@ class Scorer:
                 votes.append((label, reason, c["provider"], c["model"]))
             else:
                 if err:
-                    failures.append(f"{c['provider']}:{c['model']} -> {err}")
+                    failures.append(f'{c["provider"]}:{c["model"]} -> {err}')
                     if os.getenv("SCORING_DEBUG", "0") == "1":
                         print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
                 else:
-                    failures.append(f"{c['provider']}:{c['model']} -> no_label")
+                    failures.append(f'{c["provider"]}:{c["model"]} -> no_label')
+        
+        judge_votes = [
+            {"label": lbl, "reason": rsn, "provider": p, "model": m}
+            for (lbl, rsn, p, m) in votes
+        ]
 
         if len(votes) < self.quorum:
             debug = os.getenv("SCORING_DEBUG", "0").strip().lower() in ("1", "true", "yes")
@@ -338,9 +378,36 @@ class Scorer:
             for c in candidates:
                 label, reason, _ = self._call_judge(c["provider"], c["model"], prompt, response)
                 if label in VALID_LABELS:
-                    return label, reason
+                    meta = {
+                        "ensemble_mode": "majority",
+                        "quorum_met": False,
+                        "quorum_required": self.quorum,
+                        "num_candidates": len(candidates),
+                        "judge_votes": judge_votes,
+                        "judge_failures": failures,
+                        "fallback_used": True,
+                    }
+                    return label, reason, meta
 
-            return "UNSCORED", debug_msg
+            meta = {
+                "ensemble_mode": "majority",
+                "quorum_met": False,
+                "quorum_required": self.quorum,
+                "num_candidates": len(candidates),
+                "judge_votes": judge_votes,
+                "judge_failures": failures,
+                "fallback_used": True,
+            }
+            return "UNSCORED", debug_msg, meta
 
         label, explanation = self._majority_vote(votes, judge_order)
-        return label, explanation
+        meta = {
+            "ensemble_mode": "majority",
+            "quorum_met": True,
+            "quorum_required": self.quorum,
+            "num_candidates": len(candidates),
+            "judge_votes": judge_votes,
+            "judge_failures": failures,
+            "fallback_used": False,
+        }
+        return label, explanation, meta
