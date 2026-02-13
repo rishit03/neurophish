@@ -26,6 +26,7 @@ def run_inline_prompts(
         for obj in arr:
             # Support both dict prompt objects and pydantic-like objects
             pid = getattr(obj, "id", None) or (obj.get("id") if isinstance(obj, dict) else None)
+            pid = str(pid) if pid is not None else ""
 
             # Primary should be "prompt" (run_inline normalizes prompt_text -> prompt)
             # Backup accepts prompt_text just in case anything bypasses normalization.
@@ -55,8 +56,19 @@ def run_inline_prompts(
 
                 # ✅ minimal fairness patch: pass evaluated_model so scorer can exclude self / same-family
                 out = scorer.score(prompt, resp, evaluated_model=model)
-                label, reason = out[0], out[1]
-                meta = out[2] if isinstance(out, (list, tuple)) and len(out) > 2 else None
+
+                # Unpack safely (support legacy 2-tuple or new 3-tuple)
+                if isinstance(out, (list, tuple)):
+                    label = out[0]
+                    reason = out[1] if len(out) > 1 else None
+                    meta = out[2] if len(out) > 2 else None
+                else:
+                    # defensive fallback: try to unpack (rare)
+                    try:
+                        label, reason = out
+                        meta = None
+                    except Exception:
+                        label, reason, meta = "UNSCORED", None, None
 
                 items.append(RunResultItem(
                     prompt_id=pid,
@@ -70,8 +82,11 @@ def run_inline_prompts(
                     quorum_met=(meta.get("quorum_met") if meta else None),
                     ensemble_mode=(meta.get("ensemble_mode") if meta else None),
                 ))
-                summary[label] += 1
-                by_cat[cat][label] += 1
+
+                # Update summary and by_cat safely (handle unexpected labels)
+                summary_label = label if label in summary else "UNSCORED"
+                summary[summary_label] += 1
+                by_cat[cat][summary_label] += 1
 
             except Exception as e:
                 items.append(RunResultItem(

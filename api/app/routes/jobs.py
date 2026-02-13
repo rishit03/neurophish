@@ -57,8 +57,16 @@ def _do_job(jid: str, req: JobReq):
             prompts_by_cat=prompts_by_cat,
         )
 
+        # If it's awaitable, run it safely via the helper; otherwise use directly.
         if inspect.isawaitable(maybe_result):
-            result = asyncio.run(maybe_result)   # run coroutine to completion
+            try:
+                result = _run_coroutine_safe(maybe_result)
+            except Exception as e:
+                # capture and record failures from the coroutine run
+                tb = traceback.format_exc()
+                print(f"[jobs] Coroutine execution failed for job {jid}: {e}\n{tb}", flush=True)
+                set_status(jid, "error", error=f"Coroutine execution failed: {e}")
+                return
         else:
             result = maybe_result
 
