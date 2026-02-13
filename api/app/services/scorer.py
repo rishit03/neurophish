@@ -308,7 +308,8 @@ class Scorer:
                 if label in VALID_LABELS:
                     return label, reason
                 if err:
-                    print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
+                    if os.getenv("SCORING_DEBUG", "0") == "1":
+                        print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
             return "UNSCORED", None
 
         # Majority ensemble
@@ -322,7 +323,8 @@ class Scorer:
             else:
                 if err:
                     failures.append(f"{c['provider']}:{c['model']} -> {err}")
-                    print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
+                    if os.getenv("SCORING_DEBUG", "0") == "1":
+                        print(f"[scorer] judge_failed provider={c['provider']} model={c['model']} err={err}", flush=True)
                 else:
                     failures.append(f"{c['provider']}:{c['model']} -> no_label")
 
