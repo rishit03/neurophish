@@ -189,9 +189,15 @@ class Scorer:
             print(f"[scorer] Warning: {meta['env']} not set; judge calls for provider={provider} may fail.", flush=True)
 
         base_url = (meta["base_url"] or "").rstrip("/")
-        # Special safety: Groq should be https://api.groq.com (no /v1)
-        if provider == "Groq" and base_url.endswith("/v1"):
-            base_url = base_url[:-3]
+        # ✅ Groq: must use OpenAI-compatible endpoint: https://api.groq.com/openai/v1
+        if provider == "Groq":
+            # If user accidentally set the root, fix it
+            if base_url == "https://api.groq.com":
+                base_url = "https://api.groq.com/openai/v1"
+            # If they set /openai only, append /v1
+            if base_url.endswith("/openai"):
+                base_url = base_url + "/v1"
+            # If they set /openai/v1 already, keep it (do NOT strip)
 
         client = OpenAI(api_key=key, base_url=base_url)
         self._clients[provider] = client
