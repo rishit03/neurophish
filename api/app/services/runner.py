@@ -70,6 +70,8 @@ def run_inline_prompts(
                     except Exception:
                         label, reason, meta = "UNSCORED", None, None
 
+                meta = meta if isinstance(meta, dict) else None
+
                 items.append(RunResultItem(
                     prompt_id=pid,
                     category=cat,
@@ -81,6 +83,7 @@ def run_inline_prompts(
                     judge_failures=(meta.get("judge_failures") if meta else None),
                     quorum_met=(meta.get("quorum_met") if meta else None),
                     ensemble_mode=(meta.get("ensemble_mode") if meta else None),
+                    fallback_used=(meta.get("fallback_used") if meta else None),
                 ))
 
                 # Update summary and by_cat safely (handle unexpected labels)

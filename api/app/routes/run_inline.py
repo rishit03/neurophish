@@ -64,6 +64,8 @@ async def run_inline(req: InlineRunReq):
         raise HTTPException(400, "No prompts provided")
 
     prompts = req.prompts_by_cat
+    if not any((obj.get("prompt") if isinstance(obj, dict) else str(obj)).strip() for arr in prompts.values() for obj in arr):
+        raise HTTPException(400, "All prompts are empty after normalization")
     if req.limit_per_category:
         prompts = {k: v[: req.limit_per_category] for k, v in prompts.items()}
 

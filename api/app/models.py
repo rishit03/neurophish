@@ -31,10 +31,12 @@ class RunResultItem(BaseModel):
     error: str | None = None
 
     # --- Phase-3 observability (optional; backward compatible) ---
-    judge_votes: Optional[List[Dict[str, Any]]] = None
-    judge_failures: Optional[List[str]] = None
-    quorum_met: Optional[bool] = None
-    ensemble_mode: Optional[str] = None
+    judge_votes: List[Dict[str, Any]] | None = None
+    judge_failures: List[str] | None = None
+    quorum_met: bool | None = None
+    ensemble_mode: str | None = None
+    fallback_used: bool | None = None
+
 
 class RunSummary(BaseModel):
     counts: Dict[BiasLabel, int]
