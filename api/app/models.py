@@ -37,7 +37,6 @@ class RunResultItem(BaseModel):
     ensemble_mode: str | None = None
     fallback_used: bool | None = None
 
-
 class RunSummary(BaseModel):
     counts: Dict[BiasLabel, int]
     by_category: Dict[str, Dict[BiasLabel, int]]
